@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quiz Example</title>
+    <style>
+      #quiz-container {
+        max-width: 800px;
+        min-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #question-container {
+        margin-bottom: 20px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-top: 0;
+      }
+
+      p {
+        margin: 10px 0;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      input[type="radio"] {
+        margin-right: 5px;
+      }
+
+      label {
+        cursor: pointer;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .correct {
+        background-color: #80ff80;
+      }
+
+      .incorrect {
+        background-color: #ff8080;
+      }
+
+      .selected {
+        border: 2px solid #007bff;
+      }
+
+      .correct {
+        background-color: #80ff80;
+      }
+
+      .incorrect {
+        background-color: #ff8080;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quiz-container">
+      <div id="question-container">
+        <!-- Question and options will be dynamically inserted here -->
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Quiz data
+        const quizQuestions = [
+          {
+            question: "What is the best programming language?",
+            options: ["HTML", "CSS", "JavaScript", "React"],
+            correctAnswer: "React",
+            explanation: "React is the best programming language. Watch this video to understand more about why it is the correct answer.",
+          },
+          {
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin", "Madrid"],
+            correctAnswer: "Paris",
+            explanation: "Paris is the capital of France. Watch this video to understand more about why it is the correct answer.",
+          },
+          {
+            question: "Who painted the Mona Lisa?",
+            options: ["Pablo Picasso", "Leonardo da Vinci", "Vincent van Gogh", "Claude Monet"],
+            correctAnswer: "Leonardo da Vinci",
+            explanation: "Leonardo da Vinci painted the Mona Lisa. Watch this video to learn more about the painting and its artist.",
+          },
+          // Add more quiz questions here
+        ];
+
+        // Initialize quiz state
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizSummary = [];
+
+        // Function to display current question
+        const displayQuestion = () => {
+          const questionContainer = document.getElementById("question-container");
+          questionContainer.innerHTML = `
+      <h3>Question ${currentQuestionIndex + 1}</h3>
+      <p>${quizQuestions[currentQuestionIndex].question}</p>
+      <ul>
+        ${quizQuestions[currentQuestionIndex].options
+          .map(
+            (option, index) => `
+            <li>
+              <input type="radio" id="option${index}" name="answer" value="${option}">
+              <label for="option${index}">${option}</label>
+            </li>
+          `
+          )
+          .join("")}
+      </ul>
+      <button id="submit-button">Submit</button>
+      <button id="next-button" style="display: none;">Next Question</button>
+      <p id="explanation-text" style="display: none;"></p>
+    `;
+
+          // Attach event listener to the submit button
+          const submitButton = document.getElementById("submit-button");
+          submitButton.addEventListener("click", checkAnswer);
+
+          // Attach event listener to the next button
+          const nextButton = document.getElementById("next-button");
+          nextButton.addEventListener("click", () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+              displayQuestion();
+            } else {
+              displayResult();
+            }
+          });
+        };
+
+        // Function to check the selected answer
+        const checkAnswer = () => {
+          const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+          if (selectedAnswer) {
+            const userAnswer = selectedAnswer.value;
+            const correctAnswer = quizQuestions[currentQuestionIndex].correctAnswer;
+            if (userAnswer === correctAnswer) {
+              score++;
+              selectedAnswer.parentElement.classList.add("correct");
+              quizSummary.push({ question: quizQuestions[currentQuestionIndex].question, correct: true });
+            } else {
+              selectedAnswer.parentElement.classList.add("incorrect");
+              const explanationText = document.getElementById("explanation-text");
+              explanationText.textContent = quizQuestions[currentQuestionIndex].explanation;
+              explanationText.style.display = "block";
+              quizSummary.push({ question: quizQuestions[currentQuestionIndex].question, correct: false });
+            }
+
+            // Disable radio buttons and submit button
+            const answerOptions = document.querySelectorAll('input[name="answer"]');
+            answerOptions.forEach((option) => {
+              option.disabled = true;
+            });
+            document.getElementById("submit-button").disabled = true;
+
+            // Show next button
+            document.getElementById("next-button").style.display = "inline-block";
+          }
+        };
+
+        // Function to display the quiz result
+        const displayResult = () => {
+          const quizContainer = document.getElementById("quiz-container");
+          quizContainer.innerHTML = `
+      <h2>Quiz Completed!</h2>
+      <p>Your Score: ${score}/${quizQuestions.length}</p>
+      <h3>Quiz Summary</h3>
+      <ul>
+        ${quizSummary
+          .map(
+            (summary) => `
+            <li>
+              ${summary.question} - ${summary.correct ? "Correct" : "Incorrect"}
+            </li>
+          `
+          )
+          .join("")}
+      </ul>
+    `;
+        };
+
+        // Start the quiz
+        displayQuestion();
+      });
+    </script>
+  </body>
+</html>
